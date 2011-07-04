@@ -20,10 +20,6 @@ class MessageManager(models.Manager):
             user=user,
             deleted_at__isnull=True,
         )
-        
-        # this makes sure that a just created message does not show up in inbox of the same user
-        inbox = inbox.exclude(Q(thread__creator=user)&Q(thread__replied=False))
-            
         if read != None:
             if read == True:
                 # read messages have read_at set to a later value then last message of the thread
@@ -132,7 +128,24 @@ class Participant(models.Model):
     def others(self):
         """returns the other participants of the thread"""
         return self.thread.participants.exclude(user=self.user)
-    
+
+    def get_next(self):
+        try:
+            participation = Participant.objects.inbox_for(self.user).filter(thread__latest_msg__sent_at__gt=\
+                                                                           self.thread.latest_msg.sent_at).reverse()[0]
+            return participation
+        except:
+            return None
+
+
+    def get_previous(self):
+        try:
+            participation = Participant.objects.inbox_for(self.user).filter(thread__latest_msg__sent_at__lt=\
+                                                                            self.thread.latest_msg.sent_at)[0]
+            return participation
+        except:
+            return None
+        
     def __unicode__(self):
         return "%s - %s" % (str(self.user), self.thread.subject)
     
@@ -147,7 +160,7 @@ def inbox_count_for(user):
     returns the number of unread messages for the given user but does not
     mark them seen
     """
-    return Participant.objects.filter(user=user, read_at__isnull=True, deleted_at__isnull=True).count()
+    return Participant.objects.inbox_for(user, read=False).count()
 
 
 from threaded_messages.utils import new_message_email

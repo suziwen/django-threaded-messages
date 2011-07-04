@@ -116,6 +116,7 @@ def compose(request, recipient=None, form_class=ComposeForm,
             form.fields['recipient'].initial = recipients
     return render_to_response(template_name, {
         'form': form,
+        'recipients': recipients,
     }, context_instance=RequestContext(request))
 
 
