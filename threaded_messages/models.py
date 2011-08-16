@@ -135,11 +135,14 @@ class Participant(models.Model):
         """returns the last sender thats not the viewing user. if nobody
             besides you sent a message to the thread we take a random one
         """
-        sender = self.thread.all_msgs.exclude(sender=self.user)
-        if sender:
-            return sender[0].sender
+        message = self.thread.all_msgs.exclude(sender=self.user)
+        if message:
+            return message[0].sender
         else:
-            return self.others()[0].user
+            others = self.others()
+            if others:
+                return others[0].user
+        return None
     
     def others(self):
         """returns the other participants of the thread"""
