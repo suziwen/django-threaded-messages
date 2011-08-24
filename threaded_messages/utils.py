@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
 import re
-
+from forms import ComposeForm
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.utils.encoding import force_unicode
 from django.utils.text import wrap
 from django.utils.translation import ugettext_lazy as _
 from django.template import Context, loader
-from django.template.loader import render_to_string
-
+from django.template.loader import render_to_string, get_template
+from django.template import Context
 # favour django-mailer but fall back to django.core.mail
 
 if "mailer" in settings.INSTALLED_APPS:
@@ -16,6 +16,19 @@ if "mailer" in settings.INSTALLED_APPS:
 else:
     from django.core.mail import send_mail
 
+
+def open_message_thread(recipients, subject, template,
+                        sender, context={}):
+    t = get_template(template)
+    compose_form = ComposeForm(data={
+        "recipient": recipients,
+        "subject": subject,
+        "body": t.render(Context({}))
+    })
+    if compose_form.is_valid():
+        compose_form.save(sender=sender)
+        
+        
 def new_message_email(sender, instance, signal, 
         subject_prefix=_(u'New Message: %(subject)s'),
         template_name="django_messages/new_message.html",

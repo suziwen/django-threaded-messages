@@ -271,7 +271,11 @@ def message_ajax_reply(request, thread_id,
     if request.POST:
         form = ReplyForm(request.POST)
         if form.is_valid():
-            (thread, new_message) = form.save(sender=request.user, thread=thread)
+            try:
+                (thread, new_message) = form.save(sender=request.user, thread=thread)
+            except:
+                return HttpResponse(status=500, content="Message could not be sent")
+                
             return render_to_response(template_name,{
                 "message": new_message,
             }, context_instance=RequestContext(request))
