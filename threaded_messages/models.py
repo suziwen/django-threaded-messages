@@ -5,7 +5,6 @@ from django.db.models import signals
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from profiles.models import Profile
 from django.db.models import F, Q
 from django.db.models import Avg, Max, Min, Count
     
