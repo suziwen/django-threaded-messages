@@ -34,8 +34,8 @@ def open_message_thread(recipients, subject, template,
         compose_form.save(sender=sender)
 
 def reply_to_thread(thread,sender, body):  
-	# strip XSS and unwanted html
-	h = HTMLParser.HTMLParser()
+    # strip XSS and unwanted html
+    h = HTMLParser.HTMLParser()
     cleaner = Cleaner(style=True, links=True, add_nofollow=True,
               page_structure=False, safe_attrs_only=True)
     body = cleaner.clean_html(h.unescape(body))
