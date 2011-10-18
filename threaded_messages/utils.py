@@ -60,10 +60,10 @@ def reply_to_thread(thread,sender, body):
     sender_part.save()
     
     if notification:
-		for r in recipients:
-			if settings.THREADED_MESSAGES_USE_SENDGRID:
-				sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread) 
-        	notification.send(recipients, "received_email", 
+        for r in recipients:
+            if settings.THREADED_MESSAGES_USE_SENDGRID:
+                sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread) 
+            notification.send(recipients, "received_email", 
                                     {"thread": thread,
                                      "message": new_message}, sender=sender)
         

@@ -53,8 +53,9 @@ class ComposeForm(forms.Form):
         
         #send notifications
         if notification:
-			if settings.THREADED_MESSAGES_USE_SENDGRID:
-				sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread)
+            if settings.THREADED_MESSAGES_USE_SENDGRID:
+                sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread)
+                
             notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender)
