@@ -1,5 +1,5 @@
 import datetime
-import settings
+import settings as sendgrid_settings
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from models import *
 from fields import CommaSeparatedUserField
 
-if settings.THREADED_MESSAGES_USE_SENDGRID:
+if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
 	import sendgrid_parse_api
 
 notification = None
@@ -52,8 +52,8 @@ class ComposeForm(forms.Form):
         
         #send notifications
         if notification:
-            if settings.THREADED_MESSAGES_USE_SENDGRID:
-                sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread)
+            if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
+                sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread)
                 
             notification.send(recipients, "received_email", 
                                         {"thread": thread,

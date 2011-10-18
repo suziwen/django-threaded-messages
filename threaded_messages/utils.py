@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import re
-import settings
+import settings as sendgrid_settings
 from models import Message, Participant
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -12,7 +12,7 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 import HTMLParser
 # favour django-mailer but fall back to django.core.mail
-if settings.THREADED_MESSAGES_USE_SENDGRID:
+if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
 	import sendgrid_parse_api
 	
 if "mailer" in settings.INSTALLED_APPS:
@@ -62,8 +62,8 @@ def reply_to_thread(thread,sender, body):
     
     if notification:
         for r in recipients:
-            if settings.THREADED_MESSAGES_USE_SENDGRID:
-                sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread) 
+            if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
+                sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread) 
             notification.send(recipients, "received_email", 
                                     {"thread": thread,
                                      "message": new_message}, sender=sender)
