@@ -5,7 +5,6 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext_noop
 from django.contrib.auth.models import User
-from utils import reply_to_thread
 from models import *
 from fields import CommaSeparatedUserField
 

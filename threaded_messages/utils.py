@@ -2,7 +2,6 @@
 import re
 import settings
 from models import Message, Participant
-from forms import ComposeForm
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.utils.encoding import force_unicode
@@ -25,6 +24,7 @@ else:
 def open_message_thread(recipients, subject, template,
                         sender, context={}):
     t = get_template(template)
+    from forms import ComposeForm #temporary here to remove circular dependence
     compose_form = ComposeForm(data={
         "recipient": recipients,
         "subject": subject,
@@ -32,6 +32,7 @@ def open_message_thread(recipients, subject, template,
     })
     if compose_form.is_valid():
         compose_form.save(sender=sender)
+
 
 def reply_to_thread(thread,sender, body):  
     # strip XSS and unwanted html
