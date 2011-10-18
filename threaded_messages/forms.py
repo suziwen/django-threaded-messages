@@ -1,12 +1,16 @@
 import datetime
+import settings
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext_noop
 from django.contrib.auth.models import User
+from utils import reply_to_thread
+from models import *
+from fields import CommaSeparatedUserField
 
-from threaded_messages.models import *
-from threaded_messages.fields import CommaSeparatedUserField
+if settings.THREADED_MESSAGES_USE_SENDGRID:
+	import sendgrid_parse_api
 
 notification = None
 if "notification" in settings.INSTALLED_APPS:
@@ -49,6 +53,8 @@ class ComposeForm(forms.Form):
         
         #send notifications
         if notification:
+			if settings.THREADED_MESSAGES_USE_SENDGRID:
+				sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread)
             notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender)
@@ -65,29 +71,4 @@ class ReplyForm(forms.Form):
     
     def save(self, sender, thread):
         body = self.cleaned_data['body']
-        
-        new_message = Message.objects.create(body=body, sender=sender)
-        new_message.parent_msg = thread.latest_msg
-        thread.latest_msg = new_message
-        thread.all_msgs.add(new_message)
-        thread.replied = True
-        thread.save()
-        new_message.save()
-        
-        recipients = []
-        for participant in thread.participants.all():
-            participant.deleted_at = None
-            participant.save()
-            if sender != participant.user: # dont send emails to the sender!
-                recipients.append(participant.user)
-        
-        sender_part = Participant.objects.get(thread=thread, user=sender)
-        sender_part.replied_at = sender_part.read_at = datetime.datetime.now()
-        sender_part.save()
-        
-        if notification:
-            notification.send(recipients, "received_email", 
-                                        {"thread": thread,
-                                         "message": new_message}, sender=sender)
-            
-        return (thread, new_message)
+        return reply_to_thread(thread, sender, body)

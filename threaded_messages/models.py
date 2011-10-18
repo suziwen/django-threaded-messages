@@ -180,6 +180,3 @@ def inbox_count_for(user):
     """
     return Participant.objects.inbox_for(user, read=False).count()
 
-
-from threaded_messages.utils import new_message_email
-signals.post_save.connect(new_message_email, sender=Message)

@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 import re
+import settings
+from models import Message, Participant
 from forms import ComposeForm
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -9,8 +11,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.template import Context, loader
 from django.template.loader import render_to_string, get_template
 from django.template import Context
+import HTMLParser
 # favour django-mailer but fall back to django.core.mail
-
+if settings.THREADED_MESSAGES_USE_SENDGRID:
+	import sendgrid_parse_api
+	
 if "mailer" in settings.INSTALLED_APPS:
     from mailer import send_mail
 else:
@@ -27,34 +32,40 @@ def open_message_thread(recipients, subject, template,
     })
     if compose_form.is_valid():
         compose_form.save(sender=sender)
-        
-        
-def new_message_email(sender, instance, signal, 
-        subject_prefix=_(u'New Message: %(subject)s'),
-        template_name="django_messages/new_message.html",
-        default_protocol=None,
-        *args, **kwargs):
-    """
-    This function sends an email and is called via Django's signal framework.
-    Optional arguments:
-        ``template_name``: the template to use
-        ``subject_prefix``: prefix for the email subject.
-        ``default_protocol``: default protocol in site URL passed to template
-    """
-    if default_protocol is None:
-        default_protocol = getattr(settings, 'DEFAULT_HTTP_PROTOCOL', 'http')
 
-    if 'created' in kwargs and kwargs['created']:
-        try:
-            current_domain = Site.objects.get_current().domain
-            subject = subject_prefix % {'subject': instance.subject}
-            message = render_to_string(template_name, {
-                'site_url': '%s://%s' % (default_protocol, current_domain),
-                'message': instance,
-            })
-            if instance.recipient.email != "":
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
-                    [instance.recipient.email,])
-        except Exception, e:
-            #print e
-            pass #fail silently
+def reply_to_thread(thread,sender, body):  
+	# strip XSS and unwanted html
+	h = HTMLParser.HTMLParser()
+    cleaner = Cleaner(style=True, links=True, add_nofollow=True,
+              page_structure=False, safe_attrs_only=True)
+    body = cleaner.clean_html(h.unescape(body))
+
+    new_message = Message.objects.create(body=body, sender=sender)
+    new_message.parent_msg = thread.latest_msg
+    thread.latest_msg = new_message
+    thread.all_msgs.add(new_message)
+    thread.replied = True
+    thread.save()
+    new_message.save()
+    
+    recipients = []
+    for participant in thread.participants.all():
+        participant.deleted_at = None
+        participant.save()
+        if sender != participant.user: # dont send emails to the sender!
+            recipients.append(participant.user)
+    
+    sender_part = Participant.objects.get(thread=thread, user=sender)
+    sender_part.replied_at = sender_part.read_at = datetime.datetime.now()
+    sender_part.save()
+    
+    if notification:
+		for r in recipients:
+			if settings.THREADED_MESSAGES_USE_SENDGRID:
+				sendgrid_parse_api.utils.create_reply_email(settings.THREADED_MESSAGES_ID, r, thread) 
+        	notification.send(recipients, "received_email", 
+                                    {"thread": thread,
+                                     "message": new_message}, sender=sender)
+        
+    return (thread, new_message)
+ 
