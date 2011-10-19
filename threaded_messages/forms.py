@@ -30,7 +30,7 @@ class ComposeForm(forms.Form):
         if recipient_filter is not None:
             self.fields['recipient']._recipient_filter = recipient_filter
     
-    def save(self, sender):
+    def save(self, sender, send=True):
         recipients = self.cleaned_data['recipient']
         subject = self.cleaned_data['subject']
         body = self.cleaned_data['body']
@@ -51,11 +51,16 @@ class ComposeForm(forms.Form):
         sender_part.save()
         
         #send notifications
-        if notification:
+        if send and notification:
             if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
-                sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread)
-                
-            notification.send(recipients, "received_email", 
+                for r in recipients:
+                    reply_email = sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread)
+                    notification.send(recipients, "received_email", 
+                                        {"thread": thread,
+                                         "message": new_message}, sender=sender,
+                                        from_email=reply_email.get_reply_email())
+            else:
+                notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender)
         

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import re
-import settings as sendgrid_settings
+import settings as tm_settings
 from models import Message, Participant
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -12,7 +12,7 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 import HTMLParser
 # favour django-mailer but fall back to django.core.mail
-if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
+if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
 	import sendgrid_parse_api
 	
 if "mailer" in settings.INSTALLED_APPS:
@@ -22,7 +22,7 @@ else:
 
 
 def open_message_thread(recipients, subject, template,
-                        sender, context={}):
+                        sender, context={}, send=True):
     t = get_template(template)
     from forms import ComposeForm #temporary here to remove circular dependence
     compose_form = ComposeForm(data={
@@ -31,7 +31,7 @@ def open_message_thread(recipients, subject, template,
         "body": t.render(Context({}))
     })
     if compose_form.is_valid():
-        compose_form.save(sender=sender)
+        compose_form.save(sender=sender, send=send)
 
 
 def reply_to_thread(thread,sender, body):  
@@ -62,9 +62,14 @@ def reply_to_thread(thread,sender, body):
     
     if notification:
         for r in recipients:
-            if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
-                sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread) 
-            notification.send(recipients, "received_email", 
+            if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
+                reply_email = sendgrid_parse_api.utils.create_reply_email(tm_settings.THREADED_MESSAGES_ID, r, thread)
+                notification.send(recipients, "received_email", 
+                                        {"thread": thread,
+                                         "message": new_message}, sender=sender,
+                                        from_email=reply_email.get_reply_email())
+            else:
+                notification.send(recipients, "received_email", 
                                     {"thread": thread,
                                      "message": new_message}, sender=sender)
         
