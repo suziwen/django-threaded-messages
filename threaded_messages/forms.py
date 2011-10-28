@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_noop
 from django.contrib.auth.models import User
 from models import *
 from fields import CommaSeparatedUserField
+from utils import reply_to_thread
 
 if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
 	import sendgrid_parse_api

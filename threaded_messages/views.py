@@ -19,6 +19,7 @@ import simplejson
 from threaded_messages.models import Thread
 import logging
 
+
 @login_required
 def inbox(request, template_name='django_messages/inbox.html'):
     """
@@ -272,7 +273,6 @@ def message_ajax_reply(request, thread_id,
         form = ReplyForm(request.POST)
         if form.is_valid():
             try:
-                import pdb; pdb.set_trace()
                 (thread, new_message) = form.save(sender=request.user, thread=thread)
             except Exception, e:
                 logging.exception(e)

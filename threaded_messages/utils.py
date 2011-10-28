@@ -11,6 +11,11 @@ from django.template import Context, loader
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 import HTMLParser
+from lxml.html.clean import Cleaner
+import datetime
+if "notification" in settings.INSTALLED_APPS:
+    from notification import models as notification
+    
 # favour django-mailer but fall back to django.core.mail
 if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
 	import sendgrid_parse_api
