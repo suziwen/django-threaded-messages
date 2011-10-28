@@ -17,7 +17,7 @@ from threaded_messages.models import *
 from threaded_messages.forms import ComposeForm, ReplyForm
 import simplejson
 from threaded_messages.models import Thread
-
+import logging
 
 @login_required
 def inbox(request, template_name='django_messages/inbox.html'):
@@ -272,8 +272,10 @@ def message_ajax_reply(request, thread_id,
         form = ReplyForm(request.POST)
         if form.is_valid():
             try:
+                import pdb; pdb.set_trace()
                 (thread, new_message) = form.save(sender=request.user, thread=thread)
-            except:
+            except Exception, e:
+                logging.exception(e)
                 return HttpResponse(status=500, content="Message could not be sent")
                 
             return render_to_response(template_name,{
