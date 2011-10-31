@@ -42,7 +42,6 @@ class ComposeForm(forms.Form):
                                        latest_msg=new_message,
                                        creator=sender)
         thread.all_msgs.add(new_message)
-        thread.save()
 
         for recipient in recipients:
             Participant.objects.create(thread=thread, user=recipient)
@@ -50,6 +49,8 @@ class ComposeForm(forms.Form):
         (sender_part, created) = Participant.objects.get_or_create(thread=thread, user=sender)
         sender_part.replied_at = sender_part.read_at = datetime.datetime.now()
         sender_part.save()
+        
+        thread.save() #save this last, since this updates the search index
         
         #send notifications
         if send and notification:
