@@ -27,16 +27,24 @@ else:
 
 
 def open_message_thread(recipients, subject, template,
-                        sender, context={}, send=True):
-    t = get_template(template)
+                        sender, context={}, send=True, message=None):
+    body = ''
+    if template:
+        t = get_template(template)
+        body = t.render(Context({}))
+    else:
+        body = message
+        
     from forms import ComposeForm #temporary here to remove circular dependence
     compose_form = ComposeForm(data={
         "recipient": recipients,
         "subject": subject,
-        "body": t.render(Context({}))
+        "body": body
     })
     if compose_form.is_valid():
-        compose_form.save(sender=sender, send=send)
+        (thread, new_message) = compose_form.save(sender=sender, send=send)
+        
+    return (thread, new_message)
 
 
 def reply_to_thread(thread,sender, body):  
