@@ -10,7 +10,7 @@ from fields import CommaSeparatedUserField
 from utils import reply_to_thread
 
 if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
-	import sendgrid_parse_api
+    from sendgrid_parse_api.utils import create_reply_email
 
 notification = None
 if "notification" in settings.INSTALLED_APPS:
@@ -56,7 +56,7 @@ class ComposeForm(forms.Form):
         if send and notification:
             if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
                 for r in recipients:
-                    reply_email = sendgrid_parse_api.utils.create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread)
+                    reply_email = create_reply_email(sendgrid_settings.THREADED_MESSAGES_ID, r, thread)
                     notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
