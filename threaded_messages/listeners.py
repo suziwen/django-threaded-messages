@@ -1,5 +1,5 @@
 from django.utils.html import strip_tags
-from django.conf import settings
+import settings as sendgrid_settings
 import logging
 logger = logging.getLogger('gidsy.apps.sendgrid')
 
