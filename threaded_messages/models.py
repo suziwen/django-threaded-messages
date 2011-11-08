@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import F, Q
 from django.db.models import Avg, Max, Min, Count
-from listeners import start_listening
 
+from listeners import start_listening
 start_listening()
    
 class MessageManager(models.Manager):

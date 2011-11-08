@@ -18,7 +18,7 @@ if "notification" in settings.INSTALLED_APPS:
     
 # favour django-mailer but fall back to django.core.mail
 if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
-	import sendgrid_parse_api
+    import sendgrid_parse_api
 	
 if "mailer" in settings.INSTALLED_APPS:
     from mailer import send_mail
