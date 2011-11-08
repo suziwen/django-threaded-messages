@@ -12,7 +12,7 @@ class UtilsTest(TestCase):
         nyan nyan nyan nyan nyan
 
         2011/10/28 Nyan Cat <nyan@nyan.cat>:
-        > hey guys
+         > hey guys
         > sarete il 31 dicembre con Pascal a Firenze?
         > lo spero tanto, nel caso ditemi qualcosa...
         >
@@ -24,7 +24,6 @@ class UtilsTest(TestCase):
         body_stripped = """nyan nyan nyan nyan nyan
         nyan nyan nyan nyan nyan
         nyan nyan nyan nyan nyan
-        
         """
         
-        self.assertEquals(body_stripped, strip_quotes(body))
+        self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())

@@ -87,15 +87,13 @@ def strip_quotes(body):
 
     custom_line_no = None
     lines = body.split('\n')
-    import nose; nose.tools.set_trace()
     for i,l in enumerate(lines):
-        import nose; nose.tools.set_trace()
         if l.lstrip().startswith('>'):
             if not custom_line_no:
                 custom_line_no = i-1  
                 lines.pop(custom_line_no)
                 break
 
-    stripped_lines = [s for s in lines if not s.startswith('>')]
+    stripped_lines = [s for s in lines if not s.lstrip().startswith('>')]
 
     return ('\n').join(stripped_lines)
