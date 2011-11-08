@@ -7,7 +7,7 @@ from utils import strip_quotes
         
 class UtilsTest(TestCase):
     def test_strip_quotes(self):
-        body = """nyan nyan nyan nyan nyan 
+        body = """nyan nyan nyan nyan nyan
         nyan nyan nyan nyan nyan
         nyan nyan nyan nyan nyan
 

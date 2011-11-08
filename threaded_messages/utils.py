@@ -20,7 +20,7 @@ if "notification" in settings.INSTALLED_APPS:
 # favour django-mailer but fall back to django.core.mail
 if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
     import sendgrid_parse_api
-	
+
 if "mailer" in settings.INSTALLED_APPS:
     from mailer import send_mail
 else:
@@ -87,9 +87,10 @@ def strip_quotes(body):
 
     custom_line_no = None
     lines = body.split('\n')
-
+    import nose; nose.tools.set_trace()
     for i,l in enumerate(lines):
-        if l.startswith('>'):
+        import nose; nose.tools.set_trace()
+        if l.lstrip().startswith('>'):
             if not custom_line_no:
                 custom_line_no = i-1  
                 lines.pop(custom_line_no)
