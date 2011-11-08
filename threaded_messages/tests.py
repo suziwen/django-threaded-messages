@@ -2,6 +2,7 @@ import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 from threaded_messages.models import Message
+from utils import strip_quotes
 
 class DeleteTestCase(TestCase):
     def setUp(self):
@@ -13,5 +14,27 @@ class DeleteTestCase(TestCase):
         self.msg2.recipient_deleted_at = datetime.datetime.now()
         self.msg1.save()
         self.msg2.save()
-                
-   
+        
+class UtilsTest(TestCase):
+    def test_strip_quotes(self):
+        body = """nyan nyan nyan nyan nyan 
+        nyan nyan nyan nyan nyan
+        nyan nyan nyan nyan nyan
+
+        2011/10/28 Nyan Cat <nyan@nyan.cat>:
+        > hey guys
+        > sarete il 31 dicembre con Pascal a Firenze?
+        > lo spero tanto, nel caso ditemi qualcosa...
+        >
+        >>>
+        >
+        >>
+        >"""
+        
+        body_stripepd = """nyan nyan nyan nyan nyan 
+        nyan nyan nyan nyan nyan
+        nyan nyan nyan nyan nyan
+        
+        """
+        
+        self.assertEquals(body_stripped, strip_quotes(body))
