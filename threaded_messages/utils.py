@@ -13,6 +13,7 @@ from django.template import Context
 import HTMLParser
 from lxml.html.clean import Cleaner
 import datetime
+
 if "notification" in settings.INSTALLED_APPS:
     from notification import models as notification
     
