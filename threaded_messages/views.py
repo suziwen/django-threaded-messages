@@ -55,7 +55,8 @@ def search(request, template_name="django_messages/search.html"):
     from haystack.query import SearchQuerySet #include here, so the dependency is only needed when used
     search_term = request.GET.get("q")
     results = SearchQuerySet().filter(content=search_term,
-                                    participants=request.user.pk).models(Thread)
+                                    participants=request.user.pk)\
+                                    .order_by('-last_message').models(Thread)
                     # leads to error in haystack: .order_by("-last_message")
     return render_to_response(template_name, {
                                   "thread_results": results,
