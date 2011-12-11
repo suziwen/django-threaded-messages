@@ -1,5 +1,6 @@
 {% extends "django_messages/base.html" %}
 {% load i18n %}
+{% load avatar_tags %}
 {% load pagination_tags %}
 {% block body %}
     {% autopaginate thread_list 10 %}
