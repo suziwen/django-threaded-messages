@@ -8,7 +8,7 @@ class ThreadIndex(RealTimeSearchIndex):
     participants = MultiValueField()
     last_message = DateTimeField(model_attr='latest_msg__sent_at')
 
-    def get_queryset(self):
+    def index_queryset(self):
         return Thread.objects.all()
     
     def prepare_participants(self, object):

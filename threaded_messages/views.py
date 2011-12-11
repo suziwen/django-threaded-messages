@@ -104,6 +104,7 @@ def compose(request, recipient=None, form_class=ComposeForm,
         ``template_name``: the template to use
         ``success_url``: where to redirect after successfull submission
     """
+    recipients = []
     if request.method == "POST":
         sender = request.user
         form = form_class(data=request.POST, recipient_filter=recipient_filter)
