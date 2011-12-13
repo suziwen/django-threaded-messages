@@ -86,7 +86,7 @@ def reply_to_thread(thread,sender, body):
 def strip_quotes(body):
 
     custom_line_no = None
-    body = body.strip('\r')
+    body = body.replace('\r', ' ')
     lines = [x.strip() for x in body.splitlines(True)]
 
     for i,l in enumerate(lines):
