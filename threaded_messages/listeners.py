@@ -1,7 +1,7 @@
 from django.utils.html import strip_tags
 import settings as sendgrid_settings
 import logging
-logger = logging.getLogger('gidsy.apps.sendgrid')
+logger = logging.getLogger('threaded_messages')
 
 if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
     from sendgrid_parse_api.signals import email_received
