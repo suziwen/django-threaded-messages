@@ -11,7 +11,7 @@ else:
 def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs):
     from utils import reply_to_thread, strip_quotes # circular dependency fix
     logger.debug("Sendgrid signal receive: %s, %s, %s, %s, %s, %s"%(sender, sma, app_id,
-                                                                    html, text, from_field) )
+                                                                    html, repr(text), from_field) )
     if app_id == sendgrid_settings.THREADED_MESSAGES_ID:
         body =''
 

@@ -29,12 +29,27 @@ class UtilsTest(TestCase):
         self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())
 
     def test_strip_quotes_gmail(self):
-        body = """dfdsfsdfsd
+        body = """mhh?
 
-On Tue, Dec 13, 2011 at 11:47 AM, Fabrizio Sestito <fabrizio@gidsy.com> wrote:
-> bau!"""
+
+2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
+> nyancat
+>
+> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
+>> hi there
+>>
+>>
+>> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
+>>> fgfg
+>>>
+>>> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
+>>>> dfdfd
+>>>>
+>>>> On Tue, Dec 13, 2011 at 12:35 PM, Fabrizio Sestito <fabrizio@gidsy.com> wrote:
+>>>>> ciao
+"""
         
-        body_stripped = """dfdsfsdfsd
+        body_stripped = """mmh?
         """
         
         self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())
