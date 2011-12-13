@@ -22,8 +22,8 @@ def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs)
             body = html
 
         if body:
-            strip_tags(body)
-            strip_quotes(body)
+            body = strip_tags(body)
+            body = strip_quotes(body)
             thread = sma.content_object
             reply_to_thread(thread, sma.user, body)
 
