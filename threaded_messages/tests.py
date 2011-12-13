@@ -33,6 +33,7 @@ class UtilsTest(TestCase):
 
 
 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
+
 > nyancat
 >
 > 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
