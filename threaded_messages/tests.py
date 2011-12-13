@@ -9,6 +9,7 @@ class UtilsTest(TestCase):
     def test_strip_quotes(self):
         body = """nyan nyan nyan nyan nyan
         nyan nyan nyan nyan nyan
+
         nyan nyan nyan nyan nyan
 
         2011/10/28 Nyan Cat <nyan@nyan.cat>:
@@ -22,35 +23,9 @@ class UtilsTest(TestCase):
         >"""
         
         body_stripped = """nyan nyan nyan nyan nyan
-        nyan nyan nyan nyan nyan
-        nyan nyan nyan nyan nyan
-        """
-        
-        self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())
+nyan nyan nyan nyan nyan
 
-    def test_strip_quotes_gmail(self):
-        body = """mhh?
-
-
-2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
-
-> nyancat
->
-> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
->> hi there
->>
->>
->> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
->>> fgfg
->>>
->>> 2011/12/13 Fabrizio Sestito <fabrizio@gidsy.com>:
->>>> dfdfd
->>>>
->>>> On Tue, Dec 13, 2011 at 12:35 PM, Fabrizio Sestito <fabrizio@gidsy.com> wrote:
->>>>> ciao
+nyan nyan nyan nyan nyan
 """
-        
-        body_stripped = """mmh?
-        """
         
         self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())
