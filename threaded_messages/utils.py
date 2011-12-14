@@ -75,7 +75,8 @@ def reply_to_thread(thread,sender, body):
                 notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
-                                        from_email=reply_email.get_reply_email())
+                                        from_email=reply_email.get_from_email(), 
+                                        headers = {'Reply-To': reply_email.get_reply_to_email()})
             else:
                 notification.send([r], "received_email", 
                                     {"thread": thread,
@@ -86,7 +87,9 @@ def reply_to_thread(thread,sender, body):
 def strip_quotes(body):
 
     custom_line_no = None
-    lines = body.split('\n')
+    body = body.replace('\r', ' ')
+    lines = [x.strip() for x in body.splitlines(True)]
+
     for i,l in enumerate(lines):
         if l.lstrip().startswith('>'):
             if not custom_line_no:
@@ -95,5 +98,8 @@ def strip_quotes(body):
                 break
 
     stripped_lines = [s for s in lines if not s.lstrip().startswith('>')]
+
+    # strip last empty string in the list if it exists
+    if not stripped_lines[-1]: stripped_lines.pop()
 
     return ('\n').join(stripped_lines)
