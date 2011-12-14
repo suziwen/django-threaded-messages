@@ -61,7 +61,7 @@ class ComposeForm(forms.Form):
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
                                         from_email= reply_email.get_from_email(),
-                                        headers = {'Reply-To': reply_email.get_reply_to_email(),)
+                                        headers = {'Reply-To': reply_email.get_reply_to_email()})
             else:
                 notification.send(recipients, "received_email", 
                                         {"thread": thread,
