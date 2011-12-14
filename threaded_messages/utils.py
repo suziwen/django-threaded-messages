@@ -75,7 +75,8 @@ def reply_to_thread(thread,sender, body):
                 notification.send(recipients, "received_email", 
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
-                                        from_email=reply_email.get_reply_email())
+                                        from_email=reply_email.get_from_email(), 
+                                        headers = {'Reply-To': reply_email.get_reply_to_email()})
             else:
                 notification.send([r], "received_email", 
                                     {"thread": thread,
