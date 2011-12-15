@@ -31,8 +31,14 @@ class UtilsTest(TestCase):
         
         body_stripped = """nyan nyan nyan nyan nyan
 nyan nyan nyan nyan nyan
-
 nyan nyan nyan nyan nyan
 """
         
+        self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())
+    
+    def test_single_line_quotes(self):
+        body = 'asfasf\n\nOn Thu, Dec 15, 2011 at 12:42 PM, Fabrizio S. <messaging@email.gidsy.com>wrote:\n\n>       [image: Gidsy]  New message\n>   Hi Fabrizio, Andrew M. sent you a message\n>\n> *blabla*\n> gasg\n>\n> View and reply<http://email.gidsy.com/wf/click?c=e36x8iH5CyW6UFPc7U%2FiBSpwHwOcqQc55u6Od0IAvnJWLQwR0RdOslgfJYtFkOT0&rp=7%2Bq%2FuBUXPhfnWd079jPZDJw1s3xtQcNITJcDWjO98HB8tJ6%2BYeP23y9SaOFiXvnpboQhDnEJRnrEZfRP9WnHQiL7q9Y0Plign2S9mx7i8%2Bk%3D&u=icfx5E9JS66UPX7QM9UvGw%2Fh0>\n>\n> Sincerely,\n> the *Gidsy team*<http://email.gidsy.com/wf/click?c=nun%2FbaehJTxhIK1KvYwhU5Tg16XMq0b2DKd6IxvO%2F%2Bw%3D&rp=7%2Bq%2FuBUXPhfnWd079jPZDJw1s3xtQcNITJcDWjO98HB8tJ6%2BYeP23y9SaOFiXvnpboQhDnEJRnrEZfRP9WnHQiL7q9Y0Plign2S9mx7i8%2Bk%3D&u=icfx5E9JS66UPX7QM9UvGw%2Fh1>\n>\n> This email was intended for fabrizio@gidsy.com. If you do not want to\n> receive emails like this from staging.gidsy.com<http://email.gidsy.com/wf/click?c=e36x8iH5CyW6UFPc7U%2FiBY72qxV4NIiQfC%2BfF%2BpSEec%3D&rp=7%2Bq%2FuBUXPhfnWd079jPZDJw1s3xtQcNITJcDWjO98HB8tJ6%2BYeP23y9SaOFiXvnpboQhDnEJRnrEZfRP9WnHQiL7q9Y0Plign2S9mx7i8%2Bk%3D&u=icfx5E9JS66UPX7QM9UvGw%2Fh2>anymore, then please change your Email\n> notification settings <http://notice-email-setting/>.\n>\n> Copyright \ufffd 2011 Gidsy.com, All rights reserved.\n>\n'
+
+
+        body_stripped = "asfasf"
         self.assertEquals(body_stripped.strip(), strip_quotes(body).strip())

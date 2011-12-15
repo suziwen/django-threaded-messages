@@ -89,16 +89,13 @@ def strip_quotes(body):
     custom_line_no = None
     body = body.replace('\r', ' ')
     lines = [x.strip() for x in body.splitlines(True)]
+    lines = filter(None, lines)
 
     for i,l in enumerate(lines):
         if l.lstrip().startswith('>'):
             if not custom_line_no:
                 custom_line_no = i-1  
-                popme_no = custom_line_no
-                lines.pop(popme_no)
-                while lines[popme_no] =='\n' and popme_no <= 0:
-                    lines.pop(popme_no)
-                    popme_no -= 1
+                lines.pop(custom_line_no)
                 break
 
     stripped_lines = [s for s in lines if not s.lstrip().startswith('>')]
