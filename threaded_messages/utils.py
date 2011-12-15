@@ -95,7 +95,6 @@ def strip_quotes(body):
             if not custom_line_no:
                 custom_line_no = i-1  
                 popme_no = custom_line_no
-                #import nose; nose.tools.set_trace()
                 lines.pop(popme_no)
                 while lines[popme_no] =='\n' and popme_no <= 0:
                     lines.pop(popme_no)
