@@ -31,6 +31,7 @@ class UtilsTest(TestCase):
         
         body_stripped = """nyan nyan nyan nyan nyan
 nyan nyan nyan nyan nyan
+
 nyan nyan nyan nyan nyan
 """
         
