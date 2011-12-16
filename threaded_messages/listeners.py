@@ -9,7 +9,7 @@ else:
     email_received = None
 
 def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs):
-    from utils import reply_to_thread, strip_quotes # circular dependency fix
+    from utils import reply_to_thread, strip_mail # circular dependency fix
     logger.debug("Sendgrid signal receive: %s, %s, %s, %s, %s, %s"%(sender, sma, app_id,
                                                                     html, repr(text), from_field) )
     if app_id == sendgrid_settings.THREADED_MESSAGES_ID:
@@ -23,7 +23,7 @@ def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs)
 
         if body:
             body = strip_tags(body)
-            body = strip_quotes(body)
+            body = strip_mail(body)
             thread = sma.content_object
             reply_to_thread(thread, sma.user, body)
 

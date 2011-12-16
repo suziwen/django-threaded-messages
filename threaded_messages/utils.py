@@ -83,13 +83,27 @@ def reply_to_thread(thread,sender, body):
                                      "message": new_message}, sender=sender)
         
     return (thread, new_message)
+    
 
-def strip_quotes(body):
-
-    custom_line_no = None
+def get_lines(body):
     body = body.replace('\r', ' ')
     lines = [x.strip() for x in body.splitlines(True)]
+    return lines
 
+
+def strip_mail(body):
+
+    custom_line_no = None
+    
+    lines = get_lines(body)
+
+    # strip signature
+    for l in reversed(lines):
+        lines.remove(l)
+        if l.strip().startswith('>'):
+            break
+
+    # strip quotes
     for i,l in enumerate(lines):
         if l.lstrip().startswith('>'):
             if not custom_line_no:
@@ -106,4 +120,5 @@ def strip_quotes(body):
     # strip last empty string in the list if it exists
     if not stripped_lines[-1]: stripped_lines.pop()
 
+    # stripped message
     return ('\n').join(stripped_lines)
