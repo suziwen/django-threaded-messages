@@ -83,7 +83,7 @@ def reply_to_thread(thread,sender, body):
                                      "message": new_message}, sender=sender)
         
     return (thread, new_message)
-    
+
 
 def get_lines(body):
     body = body.replace('\r', ' ')
@@ -112,7 +112,8 @@ def strip_mail(body):
                 while not lines[popme]:
                     lines.pop(popme)
                     popme -=1
-                lines.pop(popme)
+                if re.search(r'^.*?([0-1][0-9]|[2][0-3]):([0-5][0-9]).*?$', lines[popme]) or re.search(r'[\w-]+@([\w-]+\.)+[\w-]+', lines[popme]):
+                    lines.pop(popme)
                 break
 
     stripped_lines = [s for s in lines if not s.lstrip().startswith('>')]
