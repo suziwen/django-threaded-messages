@@ -49,3 +49,11 @@ nyan nyan nyan nyan nyan
 
         body_stripped = "signature test"
         self.assertEquals(body_stripped.strip(), strip_mail(body).strip())
+        
+        
+    def test_no_signature(self):
+        pass
+        #TODO: add support for stripped html
+        #body = '<div>I am some nasty html</div>'
+        #body_stripped = "I am some nasty html"
+        #self.assertEquals(body_stripped.strip(), strip_mail(body).strip())

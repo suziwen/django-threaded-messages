@@ -96,12 +96,18 @@ def strip_mail(body):
     custom_line_no = None
     
     lines = get_lines(body)
-
-    # strip signature
-    for l in reversed(lines):
-        lines.remove(l)
+    
+    has_signature = False
+    for l in lines:
         if l.strip().startswith('>'):
-            break
+            has_signature = True
+            
+    # strip signature -- only if there is a signature. otherwise all is stripped
+    if has_signature:
+        for l in reversed(lines):
+            lines.remove(l)
+            if l.strip().startswith('>'):
+                break
 
     # strip quotes
     for i,l in enumerate(lines):
