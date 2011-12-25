@@ -12,13 +12,6 @@ setup(
         'threaded_messages',
         'threaded_messages.templatetags',
     ),
-    package_data={
-        'threaded_messages': [
-            'templates/django_messages/*',
-            'templates/notification/*/*',
-            'locale/*/LC_MESSAGES/*',
-        ]
-    },
     classifiers=(
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

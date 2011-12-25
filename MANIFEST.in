@@ -1,0 +1,7 @@
+include README.rst
+include LICENSE.txt
+include threaded_messages/static/*
+include threaded_messages/locale/*/LC_MESSAGES/*.po
+include threaded_messages/static/css/*.css
+include threaded_messages/static/js/*.js
+include threaded_messages/templates/django_messages/*.html
