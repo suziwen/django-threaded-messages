@@ -12,6 +12,14 @@ setup(
         'threaded_messages',
         'threaded_messages.templatetags',
     ),
+    package_data={
+        'threaded_messages': [
+            'templates/django_messages/*.html',
+            'locale/*/LC_MESSAGES/*.po',
+            'static/js/*.js',
+            'static/css/*.css',
+        ]
+    },
     classifiers=(
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
