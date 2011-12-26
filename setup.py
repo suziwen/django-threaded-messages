@@ -18,7 +18,7 @@ setup(
             'locale/*/LC_MESSAGES/*.po',
             'static/js/*.js',
             'static/css/*.css',
-            'migrations/*'
+            'migrations/*.py'
         ]
     },
     classifiers=(
