@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_noop
@@ -13,10 +14,9 @@ from django.db.models import Q
 from django.conf import settings
 from django.template.loader import render_to_string
 from avatar.templatetags.avatar_tags import avatar_url
-from threaded_messages.models import *
-from threaded_messages.forms import ComposeForm, ReplyForm
+from .models import *
+from .forms import ComposeForm, ReplyForm
 import simplejson
-from threaded_messages.models import Thread
 import logging
 
 
@@ -110,8 +110,7 @@ def compose(request, recipient=None, form_class=ComposeForm,
         form = form_class(data=request.POST, recipient_filter=recipient_filter)
         if form.is_valid():
             form.save(sender=request.user)
-            request.user.message_set.create(
-                message=_(u"Message successfully sent."))
+            messages.success(request, _(u"Message successfully sent."))
             if success_url is None:
                 success_url = reverse('messages_inbox')
             if request.GET.has_key('next'):
@@ -153,7 +152,7 @@ def delete(request, thread_id, success_url=None):
     
     user_part.deleted_at = now
     user_part.save()
-    user.message_set.create(message=_(u"Conversation successfully deleted."))
+    messages.success(request, message=_(u"Conversation successfully deleted."))
     return HttpResponseRedirect(success_url)
 
 
@@ -174,7 +173,7 @@ def undelete(request, thread_id, success_url=None):
 
     user_part.deleted_at = now
     user_part.save()
-    user.message_set.create(message=_(u"Conversation successfully recovered."))
+    messages.success(request, _(u"Conversation successfully recovered."))
     return HttpResponseRedirect(success_url)
 
 @login_required
@@ -199,8 +198,7 @@ def view(request, thread_id, form_class=ReplyForm,
         form = form_class(request.POST)
         if form.is_valid():
             form.save(sender=user, thread=thread)
-            request.user.message_set.create(
-                message=_(u"Reply successfully sent."))
+            messages.success(request, _(u"Reply successfully sent."))
             if success_url is None:
                 success_url = reverse('messages_detail', args=(thread.id,))
             return HttpResponseRedirect(success_url)
