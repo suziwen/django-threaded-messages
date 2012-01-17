@@ -28,6 +28,11 @@ if "mailer" in settings.INSTALLED_APPS:
 else:
     from django.core.mail import send_mail
 
+try:
+    from django.utils.timezone import now
+except ImportError:
+    now = datetime.datetime.now
+
 
 def open_message_thread(recipients, subject, template,
                         sender, context={}, send=True, message=None):
@@ -67,7 +72,7 @@ def reply_to_thread(thread,sender, body):
             recipients.append(participant.user)
 
     sender_part = Participant.objects.get(thread=thread, user=sender)
-    sender_part.replied_at = sender_part.read_at = datetime.datetime.now()
+    sender_part.replied_at = sender_part.read_at = now()
     sender_part.save()
 
     if notification:

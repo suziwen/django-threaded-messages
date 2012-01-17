@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-import datetime
 import logging
 import simplejson
 
@@ -21,6 +20,7 @@ from avatar.templatetags.avatar_tags import avatar_url
 
 from .models import *
 from .forms import ComposeForm, ReplyForm
+from .utils import now
 
 
 @login_required
@@ -144,7 +144,7 @@ def delete(request, thread_id, success_url=None):
     page (e.g. `/foo/bar/`) than ``success_url`` after deletion of the message.
     """
     user = request.user
-    now = datetime.datetime.now()
+    right_now = now()
     thread = get_object_or_404(Thread, id=thread_id)
     user_part = get_object_or_404(Participant, user=user, thread=thread)
 
@@ -152,8 +152,8 @@ def delete(request, thread_id, success_url=None):
         success_url = request.GET['next']
     elif success_url is None:
         success_url = reverse('messages_inbox')
-    
-    user_part.deleted_at = now
+
+    user_part.deleted_at = right_now
     user_part.save()
     messages.success(request, message=_(u"Conversation successfully deleted."))
     return HttpResponseRedirect(success_url)
@@ -174,7 +174,7 @@ def undelete(request, thread_id, success_url=None):
     elif success_url is None:
         success_url = reverse('messages_inbox')
 
-    user_part.deleted_at = now
+    user_part.deleted_at = now()
     user_part.save()
     messages.success(request, _(u"Conversation successfully recovered."))
     return HttpResponseRedirect(success_url)
@@ -207,7 +207,7 @@ def view(request, thread_id, form_class=ReplyForm,
     else:
         form = form_class()
 
-    now = datetime.datetime.now()
+    right_now = now()
     participant = get_object_or_404(Participant, thread=thread, user=request.user)
     message_list = []
     # in this view we want the last message last
@@ -215,8 +215,8 @@ def view(request, thread_id, form_class=ReplyForm,
         unread = True
         if participant.read_at and message.sent_at <= participant.read_at:
             unread = False
-    participant.read_at = now
         message_list.append((message, unread,))
+    participant.read_at = right_now
     participant.save()
     return render_to_response(template_name, {
         'thread': thread,
@@ -241,9 +241,9 @@ def batch_update(request, success_url=None):
                 if participant:
                     participant = participant[0]
                     if request.POST.get("action") == "read":
-                        participant.read_at = datetime.datetime.now()
+                        participant.read_at = now()
                     elif request.POST.get("action") == "delete":
-                        participant.deleted_at = datetime.datetime.now()
+                        participant.deleted_at = now()
                     elif request.POST.get("action") == "unread":
                         participant.read_at = None
                     participant.save()
