@@ -8,7 +8,7 @@ from threaded_messages.models import *
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'sent_at','body')
-    
+
 admin.site.register(Message, MessageAdmin)
 admin.site.register(Thread)
 admin.site.register(Participant)
