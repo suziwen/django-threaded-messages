@@ -13,7 +13,7 @@ from django.template import Context, loader
 from django.template.loader import render_to_string, get_template
 
 import settings as tm_settings
-from models import Message, Participant
+from .models import Message, Participant
 
 
 if "notification" in settings.INSTALLED_APPS:
@@ -43,7 +43,7 @@ def open_message_thread(recipients, subject, template,
     else:
         body = message
 
-    from forms import ComposeForm #temporary here to remove circular dependence
+    from forms import ComposeForm # temporary here to remove circular dependence
     compose_form = ComposeForm(data={
         "recipient": recipients,
         "subject": subject,
