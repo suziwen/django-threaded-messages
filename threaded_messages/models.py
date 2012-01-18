@@ -8,7 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import F, Q
 from django.db.models import Avg, Max, Min, Count
 
-from .utils import now
 from .listeners import start_listening
 start_listening()
 
@@ -76,6 +75,7 @@ class Message(models.Model):
 
     def save(self, **kwargs):
         if not self.id:
+            from .utils import now
             self.sent_at = now()
         super(Message, self).save(**kwargs)
 
