@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
-import datetime
-from django.contrib.auth import load_backend, login, BACKEND_SESSION_KEY
+import logging
+import simplejson
+
+from django.contrib.auth import login, BACKEND_SESSION_KEY
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -13,11 +15,12 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.conf import settings
 from django.template.loader import render_to_string
+
 from avatar.templatetags.avatar_tags import avatar_url
+
 from .models import *
 from .forms import ComposeForm, ReplyForm
-import simplejson
-import logging
+from .utils import now
 
 
 @login_required
@@ -41,7 +44,7 @@ def inbox(request, template_name='django_messages/inbox.html'):
         only_unreplied = True
 
     thread_list = Participant.objects.inbox_for(request.user, read=read, only_unreplied=only_unreplied)
-        
+
     return render_to_response(template_name, {
         'thread_list': thread_list,
         'only_read': only_read,
@@ -62,8 +65,8 @@ def search(request, template_name="django_messages/search.html"):
                                   "thread_results": results,
                                   "search_term": search_term,
                                 }, context_instance=RequestContext(request))
-    
-    
+
+
 @login_required
 def outbox(request, template_name='django_messages/inbox.html'):
     """
@@ -79,7 +82,7 @@ def outbox(request, template_name='django_messages/inbox.html'):
 @login_required
 def trash(request, template_name='django_messages/trash.html'):
     """
-    Displays a list of deleted messages. 
+    Displays a list of deleted messages.
     Optional arguments:
         ``template_name``: name of the template to use
     Hint: A Cron-Job could periodicly clean up old messages, which are deleted
@@ -132,16 +135,16 @@ def delete(request, thread_id, success_url=None):
     """
     Marks a message as deleted by sender or recipient. The message is not
     really removed from the database, because two users must delete a message
-    before it's save to remove it completely. 
-    A cron-job should prune the database and remove old messages which are 
+    before it's save to remove it completely.
+    A cron-job should prune the database and remove old messages which are
     deleted by both users.
     As a side effect, this makes it easy to implement a trash with undelete.
-    
+
     You can pass ?next=/foo/bar/ via the url to redirect the user to a different
     page (e.g. `/foo/bar/`) than ``success_url`` after deletion of the message.
     """
     user = request.user
-    now = datetime.datetime.now()
+    right_now = now()
     thread = get_object_or_404(Thread, id=thread_id)
     user_part = get_object_or_404(Participant, user=user, thread=thread)
 
@@ -149,8 +152,8 @@ def delete(request, thread_id, success_url=None):
         success_url = request.GET['next']
     elif success_url is None:
         success_url = reverse('messages_inbox')
-    
-    user_part.deleted_at = now
+
+    user_part.deleted_at = right_now
     user_part.save()
     messages.success(request, message=_(u"Conversation successfully deleted."))
     return HttpResponseRedirect(success_url)
@@ -171,7 +174,7 @@ def undelete(request, thread_id, success_url=None):
     elif success_url is None:
         success_url = reverse('messages_inbox')
 
-    user_part.deleted_at = now
+    user_part.deleted_at = now()
     user_part.save()
     messages.success(request, _(u"Conversation successfully recovered."))
     return HttpResponseRedirect(success_url)
@@ -181,16 +184,15 @@ def view(request, thread_id, form_class=ReplyForm,
         success_url=None, recipient_filter=None, template_name='django_messages/view.html'):
     """
     Shows a single message.``message_id`` argument is required.
-    The user is only allowed to see the message, if he is either 
+    The user is only allowed to see the message, if he is either
     the sender or the recipient. If the user is not allowed a 404
-    is raised. 
-    If the user is the recipient and the message is unread 
+    is raised.
+    If the user is the recipient and the message is unread
     ``read_at`` is set to the current datetime.
-    """    
-
+    """
     user = request.user
     thread = get_object_or_404(Thread, id=thread_id)
-  
+
     """
     Reply stuff
     """
@@ -205,7 +207,7 @@ def view(request, thread_id, form_class=ReplyForm,
     else:
         form = form_class()
 
-    now = datetime.datetime.now()
+    right_now = now()
     participant = get_object_or_404(Participant, thread=thread, user=request.user)
     message_list = []
     # in this view we want the last message last
@@ -213,8 +215,8 @@ def view(request, thread_id, form_class=ReplyForm,
         unread = True
         if participant.read_at and message.sent_at <= participant.read_at:
             unread = False
-        message_list.append((message,unread,))
-    participant.read_at = now
+        message_list.append((message, unread,))
+    participant.read_at = right_now
     participant.save()
     return render_to_response(template_name, {
         'thread': thread,
@@ -239,20 +241,20 @@ def batch_update(request, success_url=None):
                 if participant:
                     participant = participant[0]
                     if request.POST.get("action") == "read":
-                        participant.read_at = datetime.datetime.now()
+                        participant.read_at = now()
                     elif request.POST.get("action") == "delete":
-                        participant.deleted_at = datetime.datetime.now()
+                        participant.deleted_at = now()
                     elif request.POST.get("action") == "unread":
                         participant.read_at = None
                     participant.save()
         else:
             raise Http404
-        
+
     else:
         # this should only happen when hacked or developer uses wrong, therefore
         # return simple message
         return HttpResponse("Only Post allowed", code=400)
-        
+
     if success_url:
         return HttpResponseRedirect(success_url)
     else:
@@ -262,8 +264,8 @@ def batch_update(request, success_url=None):
             return HttpResponseRedirect(referer)
         else:
             return HttpResponseRedirect(reverse("messages_inbox"))
-            
-            
+
+
 
 @login_required
 def message_ajax_reply(request, thread_id,
@@ -277,7 +279,7 @@ def message_ajax_reply(request, thread_id,
             except Exception, e:
                 logging.exception(e)
                 return HttpResponse(status=500, content="Message could not be sent")
-                
+
             return render_to_response(template_name,{
                 "message": new_message,
             }, context_instance=RequestContext(request))

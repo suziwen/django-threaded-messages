@@ -1,5 +1,5 @@
 from haystack import indexes
-from models import Thread
+from .models import Thread
 
 class ThreadIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -14,5 +14,3 @@ class ThreadIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Thread
-
-
