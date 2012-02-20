@@ -6,12 +6,6 @@ from django.contrib.auth.models import User, Group
 from threaded_messages.models import *
 
 
-class MessagesInline(admin.TabularInline):
-    model = Message
-    fields = ['sender', 'sent_at', 'body']
-    readonly_fields = ['sender', 'sent_at', 'body']
-    ordering = ("-sent_at",)
-    can_delete = False
 
 
 class MessageAdmin(admin.ModelAdmin):
@@ -24,10 +18,8 @@ admin.site.register(Message, MessageAdmin)
 
 class ThreadAdmin(admin.ModelAdmin):
     list_display = ('subject', 'creator', 'replied')
-    ordering = ('sent_at',)
     search_fields = ('subject', 'creator__first_name',
                      'creator__last_name', 'creator__username')
-    inlines = [MessagesInline]
 admin.site.register(Thread, ThreadAdmin)
 
 
