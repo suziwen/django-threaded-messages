@@ -60,7 +60,7 @@ I am not sure what the exact differences are to this implementation. I am pretty
 Follow Me
 ===============
 http://github.com/philippWassibauer
-http://twitter.com/scalar
+http://twitter.com/__philw__
 http://philippw.tumblr.com
 https://bitbucket.org/philippwassibauer
 
