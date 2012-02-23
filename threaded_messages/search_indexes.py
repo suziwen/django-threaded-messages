@@ -1,7 +1,7 @@
 from haystack import indexes
 from .models import Thread
 
-class ThreadIndex(indexes.SearchIndex, indexes.Indexable):
+class ThreadIndex(indexes.RealTimeSearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     participants = indexes.MultiValueField()
     last_message = indexes.DateTimeField(model_attr='latest_msg__sent_at')
