@@ -1,10 +1,7 @@
-import datetime
 import settings as sendgrid_settings
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext_noop
-from django.contrib.auth.models import User
 from .models import *
 from .fields import CommaSeparatedUserField
 from .utils import reply_to_thread, now
@@ -16,6 +13,7 @@ notification = None
 if "notification" in settings.INSTALLED_APPS:
     from notification import models as notification
 
+
 class ComposeForm(forms.Form):
     """
     A simple default form for private messages.
@@ -23,7 +21,7 @@ class ComposeForm(forms.Form):
     recipient = CommaSeparatedUserField(label=_(u"Recipient"))
     subject = forms.CharField(label=_(u"Subject"))
     body = forms.CharField(label=_(u"Body"),
-        widget=forms.Textarea(attrs={'rows': '12', 'cols':'55'}))
+        widget=forms.Textarea(attrs={'rows': '12', 'cols': '55'}))
 
     def __init__(self, *args, **kwargs):
         recipient_filter = kwargs.pop('recipient_filter', None)
@@ -50,7 +48,9 @@ class ComposeForm(forms.Form):
         sender_part.replied_at = sender_part.read_at = now()
         sender_part.save()
 
-        thread.save() #save this last, since this updates the search index
+        thread.save() # save this last, since this updates the search index
+
+        invalidate_count_cache(new_message)
 
         #send notifications
         if send and notification:
@@ -60,8 +60,8 @@ class ComposeForm(forms.Form):
                     notification.send(recipients, "received_email",
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
-                                        from_email= reply_email.get_from_email(),
-                                        headers = {'Reply-To': reply_email.get_reply_to_email()})
+                                        from_email=reply_email.get_from_email(),
+                                        headers={'Reply-To': reply_email.get_reply_to_email()})
             else:
                 notification.send(recipients, "received_email",
                                         {"thread": thread,

@@ -1,6 +1,9 @@
-from django.utils.html import strip_tags
-import settings as sendgrid_settings
 import logging
+
+from django.utils.html import strip_tags
+
+from . import settings as sendgrid_settings
+
 logger = logging.getLogger('threaded_messages')
 
 if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
@@ -8,12 +11,13 @@ if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
 else:
     email_received = None
 
+
 def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs):
-    from utils import reply_to_thread, strip_mail # circular dependency fix
-    logger.debug("Sendgrid signal receive: %s, %s, %s, %s, %s, %s"%(sender, sma, app_id,
-                                                                    html, repr(text), from_field) )
+    from .utils import reply_to_thread, strip_mail
+    logger.debug("Sendgrid signal receive: %s, %s, %s, %s, %s, %s" % (sender, sma, app_id,
+                                                                    html, repr(text), from_field))
     if app_id == sendgrid_settings.THREADED_MESSAGES_ID:
-        body =''
+        body = ''
 
         if text:
             body = text
@@ -27,7 +31,10 @@ def signal_received_email(sender, sma, app_id, html, text, from_field, **kwargs)
             thread = sma.content_object
             reply_to_thread(thread, sma.user, body)
 
+
 def start_listening():
     if email_received:
         logger.debug("Sendgrid start listening")
         email_received.connect(signal_received_email, dispatch_uid="thm_reply")
+
+    

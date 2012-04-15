@@ -2,18 +2,14 @@
 import HTMLParser
 import datetime
 import re
-from lxml.html.clean import Cleaner
 
 from django.conf import settings
-from django.contrib.sites.models import Site
-from django.utils.encoding import force_unicode
-from django.utils.text import wrap
-from django.utils.translation import ugettext_lazy as _
-from django.template import Context, loader
-from django.template.loader import render_to_string, get_template
+from django.core.cache import cache
+from django.template import Context
+from django.template.loader import get_template
 
-import settings as tm_settings
-from .models import Message, Participant
+from . import settings as tm_settings
+from .models import Message, Participant, inbox_count_for, invalidate_count_cache
 
 
 if "notification" in settings.INSTALLED_APPS:
@@ -32,6 +28,11 @@ try:
     from django.utils.timezone import now
 except ImportError:
     now = datetime.datetime.now
+
+
+def fill_count_cache(user):
+    cache.set(tm_settings.INBOX_COUNT_CACHE % user.pk,
+            inbox_count_for(user), tm_settings.INBOX_COUNT_CACHE_TIME)
 
 
 def open_message_thread(recipients, subject, template,
@@ -75,6 +76,8 @@ def reply_to_thread(thread,sender, body):
     sender_part.replied_at = sender_part.read_at = now()
     sender_part.save()
 
+    invalidate_count_cache(new_message)
+
     if notification:
         for r in recipients:
             if tm_settings.THREADED_MESSAGES_USE_SENDGRID:
@@ -83,7 +86,7 @@ def reply_to_thread(thread,sender, body):
                                         {"thread": thread,
                                          "message": new_message}, sender=sender,
                                         from_email=reply_email.get_from_email(),
-                                        headers = {'Reply-To': reply_email.get_reply_to_email()})
+                                        headers={'Reply-To': reply_email.get_reply_to_email()})
             else:
                 notification.send([r], "received_email",
                                     {"thread": thread,

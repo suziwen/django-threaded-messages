@@ -1,15 +1,14 @@
-import datetime
 from django.db import models
-from django.conf import settings
-from django.db.models import signals
-from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import F, Q
-from django.db.models import Avg, Max, Min, Count
 
 from .listeners import start_listening
+from .settings import INBOX_COUNT_CACHE, INBOX_COUNT_CACHE_TIME
+
 start_listening()
+
 
 class MessageManager(models.Manager):
 
@@ -30,12 +29,12 @@ class MessageManager(models.Manager):
             else:
                 # unread threads are the ones that either have not been read at all or before the last message arrived
                 inbox = inbox.filter(Q(read_at__isnull=True)
-                                    |Q(read_at__lt=F("thread__latest_msg__sent_at")))
+                                    | Q(read_at__lt=F("thread__latest_msg__sent_at")))
 
         if only_unreplied != None:
             if only_unreplied == True:
                 inbox = inbox.filter(Q(replied_at__isnull=True)
-                                    |Q(replied_at__lt=F("thread__latest_msg__sent_at")))
+                                    | Q(replied_at__lt=F("thread__latest_msg__sent_at")))
 
         return inbox
 
@@ -153,20 +152,32 @@ class Participant(models.Model):
 
     def get_next(self):
         try:
-            participation = Participant.objects.inbox_for(self.user).filter(thread__latest_msg__sent_at__gt=\
-                                                                           self.thread.latest_msg.sent_at).reverse()[0]
+            participation = Participant.objects.inbox_for(
+                    self.user
+                ).filter(
+                    thread__latest_msg__sent_at__gt=self.thread.latest_msg.sent_at
+                ).reverse()[0]
             return participation
         except:
             return None
-
 
     def get_previous(self):
         try:
-            participation = Participant.objects.inbox_for(self.user).filter(thread__latest_msg__sent_at__lt=\
-                                                                            self.thread.latest_msg.sent_at)[0]
+            participation = Participant.objects.inbox_for(
+                    self.user
+                ).filter(
+                    thread__latest_msg__sent_at__lt=self.thread.latest_msg.sent_at)[0]
             return participation
         except:
             return None
+
+    def read_thread(self):
+        """
+        Marks thread as read and invalidates count cache
+        """
+        from .utils import fill_count_cache, now
+        self.read_at = now()
+        fill_count_cache(self.user)
 
     def __unicode__(self):
         return "%s - %s" % (str(self.user), self.thread.subject)
@@ -177,10 +188,28 @@ class Participant(models.Model):
         verbose_name_plural = _("participants")
 
 
-def inbox_count_for(user):
+def cached_inbox_count_for(user):
     """
     returns the number of unread messages for the given user but does not
     mark them seen
     """
+    count = cache.get(INBOX_COUNT_CACHE % user.pk)
+    if count:
+        return count
+    else:
+        count = inbox_count_for(user)
+        cache.set(INBOX_COUNT_CACHE % user.pk,
+            count,
+            INBOX_COUNT_CACHE_TIME)
+        return count
+
+
+def inbox_count_for(user):
     return Participant.objects.inbox_for(user, read=False).count()
 
+
+def invalidate_count_cache(message):
+    from .utils import fill_count_cache
+    for thread in message.thread.select_related().all():
+        for participant in thread.participants.exclude(user=message.sender):
+            fill_count_cache(participant.user)

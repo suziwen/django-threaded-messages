@@ -79,6 +79,7 @@ def outbox(request, template_name='django_messages/inbox.html'):
         'thread_list': thread_list,
     }, context_instance=RequestContext(request))
 
+
 @login_required
 def trash(request, template_name='django_messages/trash.html'):
     """
@@ -92,6 +93,7 @@ def trash(request, template_name='django_messages/trash.html'):
     return render_to_response(template_name, {
         'message_list': message_list,
     }, context_instance=RequestContext(request))
+
 
 @login_required
 def compose(request, recipient=None, form_class=ComposeForm,
@@ -207,7 +209,6 @@ def view(request, thread_id, form_class=ReplyForm,
     else:
         form = form_class()
 
-    right_now = now()
     participant = get_object_or_404(Participant, thread=thread, user=request.user)
     message_list = []
     # in this view we want the last message last
@@ -216,7 +217,7 @@ def view(request, thread_id, form_class=ReplyForm,
         if participant.read_at and message.sent_at <= participant.read_at:
             unread = False
         message_list.append((message, unread,))
-    participant.read_at = right_now
+    participant.read_thread()
     participant.save()
     return render_to_response(template_name, {
         'thread': thread,
@@ -290,9 +291,9 @@ def message_ajax_reply(request, thread_id,
 @login_required
 def recipient_search(request):
     term = request.GET.get("term")
-    users = User.objects.filter(Q(first_name__icontains=term)|
-                                Q(last_name__icontains=term)|
-                                Q(username__icontains=term)|
+    users = User.objects.filter(Q(first_name__icontains=term) |
+                                Q(last_name__icontains=term) |
+                                Q(username__icontains=term) |
                                 Q(email__icontains=term))
     if request.GET.get("format") == "json":
         data = []
