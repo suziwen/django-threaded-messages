@@ -173,10 +173,11 @@ class Participant(models.Model):
 
     def read_thread(self):
         """
-        Marks thread as read and invalidates count cache
+        Marks thread as read and refill count cache
         """
         from .utils import fill_count_cache, now
         self.read_at = now()
+        self.save()
         fill_count_cache(self.user)
 
     def __unicode__(self):

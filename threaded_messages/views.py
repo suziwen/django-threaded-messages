@@ -181,6 +181,7 @@ def undelete(request, thread_id, success_url=None):
     messages.success(request, _(u"Conversation successfully recovered."))
     return HttpResponseRedirect(success_url)
 
+
 @login_required
 def view(request, thread_id, form_class=ReplyForm,
         success_url=None, recipient_filter=None, template_name='django_messages/view.html'):
@@ -218,7 +219,6 @@ def view(request, thread_id, form_class=ReplyForm,
             unread = False
         message_list.append((message, unread,))
     participant.read_thread()
-    participant.save()
     return render_to_response(template_name, {
         'thread': thread,
         'message_list': message_list,
