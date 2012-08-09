@@ -40,7 +40,7 @@ def open_message_thread(recipients, subject, template,
     body = ''
     if template:
         t = get_template(template)
-        body = t.render(Context({}))
+        body = t.render(Context(context))
     else:
         body = message
 
