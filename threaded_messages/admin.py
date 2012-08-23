@@ -13,6 +13,7 @@ class MessageAdmin(admin.ModelAdmin):
     ordering = ('-sent_at',)
     search_fields = ('body', 'sender__first_name',
                      'sender__last_name', 'sender__username')
+    raw_id_fields = ('sender',)
 admin.site.register(Message, MessageAdmin)
 
 
