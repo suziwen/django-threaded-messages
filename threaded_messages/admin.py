@@ -14,6 +14,10 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('body', 'sender__first_name',
                      'sender__last_name', 'sender__username')
     raw_id_fields = ('sender',)
+    readonly_fields = ('subject',)
+
+    def subject(self, msg):
+        return msg.thread.all()[0].subject
 admin.site.register(Message, MessageAdmin)
 
 
