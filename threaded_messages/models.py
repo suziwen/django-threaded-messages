@@ -67,7 +67,8 @@ class Message(models.Model):
     body = models.TextField(_("body"))
     sender = models.ForeignKey(User, related_name='sent_messages', blank=True, null=True, verbose_name=_("sender"))
     parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True, verbose_name=_("parent message"))
-    sent_at = models.DateTimeField(_("sent at"), auto_now_add=True)
+    sent_at = models.DateTimeField(_("sent at"), auto_now_add=True,
+        db_index=True)
 
     def __unicode__(self):
         return "%s - %s" % (str(self.sender), self.sent_at)
@@ -114,9 +115,12 @@ class Participant(models.Model):
     """
     thread = models.ForeignKey(Thread, related_name='participants', verbose_name=_("message thread"))
     user = models.ForeignKey(User, related_name='threads', verbose_name=_("participant users"))
-    read_at = models.DateTimeField(_("read at"), null=True, blank=True)
-    replied_at = models.DateTimeField(_("replied at"), null=True, blank=True)
-    deleted_at = models.DateTimeField(_("deleted at"), null=True, blank=True)
+    read_at = models.DateTimeField(_("read at"), null=True, blank=True,
+        db_index=True)
+    replied_at = models.DateTimeField(_("replied at"), null=True, blank=True,
+        db_index=True)
+    deleted_at = models.DateTimeField(_("deleted at"), null=True, blank=True,
+        db_index=True)
 
     objects = MessageManager()
 
