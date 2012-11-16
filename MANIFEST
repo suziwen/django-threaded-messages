@@ -25,6 +25,7 @@ threaded_messages/locale/it/LC_MESSAGES/django.po
 threaded_messages/migrations/0001_initial.py
 threaded_messages/migrations/0002_auto__add_field_thread_sender.py
 threaded_messages/migrations/0003_auto__add_field_thread_replied.py
+threaded_messages/migrations/0004_auto.py
 threaded_messages/migrations/__init__.py
 threaded_messages/static/css/token-input.css
 threaded_messages/static/js/jquery-1.5.2.min.js
