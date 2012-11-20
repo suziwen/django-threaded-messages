@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import F, Q
 
 from .listeners import start_listening
+
 from .settings import INBOX_COUNT_CACHE, INBOX_COUNT_CACHE_TIME
 
 start_listening()
@@ -207,10 +208,3 @@ def cached_inbox_count_for(user):
 
 def inbox_count_for(user):
     return Participant.objects.inbox_for(user, read=False).count()
-
-
-def invalidate_count_cache(message):
-    from .utils import fill_count_cache
-    for thread in message.thread.select_related().all():
-        for participant in thread.participants.exclude(user=message.sender):
-            fill_count_cache(participant.user)

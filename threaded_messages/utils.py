@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-import HTMLParser
 import datetime
 import re
 
@@ -9,7 +8,6 @@ from django.template import Context
 from django.template.loader import get_template
 
 from . import settings as tm_settings
-from .models import Message, Participant, inbox_count_for, invalidate_count_cache
 
 
 if "notification" in settings.INSTALLED_APPS:
@@ -31,8 +29,9 @@ except ImportError:
 
 
 def fill_count_cache(user):
+    from .models import inbox_count_for
     cache.set(tm_settings.INBOX_COUNT_CACHE % user.pk,
-            inbox_count_for(user), tm_settings.INBOX_COUNT_CACHE_TIME)
+              inbox_count_for(user), tm_settings.INBOX_COUNT_CACHE_TIME)
 
 
 def open_message_thread(recipients, subject, template,
@@ -44,7 +43,7 @@ def open_message_thread(recipients, subject, template,
     else:
         body = message
 
-    from forms import ComposeForm # temporary here to remove circular dependence
+    from forms import ComposeForm  # temporary here to remove circular dependence
     compose_form = ComposeForm(data={
         "recipient": recipients,
         "subject": subject,
@@ -56,7 +55,8 @@ def open_message_thread(recipients, subject, template,
     return (thread, new_message)
 
 
-def reply_to_thread(thread,sender, body):
+def reply_to_thread(thread, sender, body):
+    from .models import Message, Participant
     new_message = Message.objects.create(body=body, sender=sender)
     new_message.parent_msg = thread.latest_msg
     thread.latest_msg = new_message
@@ -69,14 +69,14 @@ def reply_to_thread(thread,sender, body):
     for participant in thread.participants.all():
         participant.deleted_at = None
         participant.save()
-        if sender != participant.user: # dont send emails to the sender!
+        if sender != participant.user:  # dont send emails to the sender!
             recipients.append(participant.user)
 
     sender_part = Participant.objects.get(thread=thread, user=sender)
     sender_part.replied_at = sender_part.read_at = now()
     sender_part.save()
 
-    invalidate_count_cache(new_message)
+    invalidate_count_cache(Message, new_message)
 
     if notification:
         for r in recipients:
@@ -120,14 +120,14 @@ def strip_mail(body):
                 break
 
     # strip quotes
-    for i,l in enumerate(lines):
+    for i, l in enumerate(lines):
         if l.lstrip().startswith('>'):
             if not custom_line_no:
-                custom_line_no = i-1
+                custom_line_no = i - 1
                 popme = custom_line_no
                 while not lines[popme]:
                     lines.pop(popme)
-                    popme -=1
+                    popme -= 1
                 if re.search(r'^.*?([0-1][0-9]|[2][0-3]):([0-5][0-9]).*?$', lines[popme]) or re.search(r'[\w-]+@([\w-]+\.)+[\w-]+', lines[popme]):
                     lines.pop(popme)
                 break
@@ -135,7 +135,14 @@ def strip_mail(body):
     stripped_lines = [s for s in lines if not s.lstrip().startswith('>')]
 
     # strip last empty string in the list if it exists
-    if not stripped_lines[-1]: stripped_lines.pop()
+    if not stripped_lines[-1]:
+        stripped_lines.pop()
 
     # stripped message
     return ('\n').join(stripped_lines)
+
+
+def invalidate_count_cache(sender, message, recipients=None, **kwargs):
+    for thread in message.thread.select_related().all():
+        for participant in thread.participants.exclude(user=message.sender):
+            fill_count_cache(participant.user)

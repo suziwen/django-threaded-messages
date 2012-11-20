@@ -3,6 +3,7 @@ import logging
 from django.utils.html import strip_tags
 
 from . import settings as sendgrid_settings
+from .signals import message_composed
 
 logger = logging.getLogger('threaded_messages')
 
@@ -37,4 +38,5 @@ def start_listening():
         logger.debug("Sendgrid start listening")
         email_received.connect(signal_received_email, dispatch_uid="thm_reply")
 
-    
+    from .utils import invalidate_count_cache
+    message_composed.connect(invalidate_count_cache, dispatch_uid="thm_composed")

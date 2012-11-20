@@ -2,12 +2,16 @@ import settings as sendgrid_settings
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
 from .models import *
 from .fields import CommaSeparatedUserField
 from .utils import reply_to_thread, now
+from .signals import message_composed
+
 
 if sendgrid_settings.THREADED_MESSAGES_USE_SENDGRID:
     from sendgrid_parse_api.utils import create_reply_email
+
 
 notification = None
 if "notification" in settings.INSTALLED_APPS:
@@ -48,9 +52,11 @@ class ComposeForm(forms.Form):
         sender_part.replied_at = sender_part.read_at = now()
         sender_part.save()
 
-        thread.save() # save this last, since this updates the search index
+        thread.save()  # save this last, since this updates the search index
 
-        invalidate_count_cache(new_message)
+        message_composed.send(sender=Message,
+                              message=new_message,
+                              recipients=recipients)
 
         #send notifications
         if send and notification:
