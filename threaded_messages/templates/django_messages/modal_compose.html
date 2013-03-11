@@ -1,13 +1,13 @@
 {% load i18n %}
-{% load uni_form_tags %}
+{% load bootstrap_tags %}
 <link rel="stylesheet" href="{{ STATIC_URL }}css/token-input.css" type="text/css" />
 <form id="message-modal-form" 
       action="{% url messages_compose %}" method="post"
-      class="uniForm modal-message-form grey-form">
+      class=" modal-message-form grey-form">
     {% csrf_token %}
     <fieldset class="inlineLabels">
         <input type="hidden" name="attachment_id" id="attachment_id" />
-        {{ form|as_uni_form }}
+        {{ form|as_bootstrap }}
     </fieldset>
     <div class="button-bar">
       <button type="submit" class="small-green-button" onclick="$.facebox.close()">{% trans "Cancel" %}</button>
